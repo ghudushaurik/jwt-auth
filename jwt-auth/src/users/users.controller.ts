@@ -5,15 +5,25 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Req,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreateUserDto } from './dto/user.dto';
 import { UsersService } from './users.service';
 
-@Controller('users')
+@Controller('user')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/me')
+  me(@Req() request) {
+    const userId = request.user.userId;
+    return this.usersService.findUsersById(userId);
+  }
 
   @Get()
   getUsers() {

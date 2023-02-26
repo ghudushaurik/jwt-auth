@@ -39,13 +39,26 @@ export class AuthService {
     return {
       refreshToken: newdata.sign(),
       accessToken: sign({ userId: user.id }, process.env.ACCESS_SECRET, {
-        expriresIn: '1h',
+        expiresIn: '1h',
       }),
     };
   }
 
   async refresh(refreshStr: string): Promise<string | undefined> {
-    return undefined;
+    const refreshToken = await this.retriveRefreshToken(refreshStr);
+    if (!refreshToken) {
+      return undefined;
+    }
+
+    const user = await this.userService.findUsersById(refreshToken.userId);
+    if (!user) {
+      return undefined;
+    }
+    const accessToken = {
+      userId: refreshToken.userId,
+    };
+
+    return sign(accessToken, process.env.ACCES_SECRET, { expiresIn: '1h' });
   }
 
   private retriveRefreshToken(
@@ -56,11 +69,17 @@ export class AuthService {
       if (typeof decode === 'string') {
         return undefined;
       }
-      return Promise.resolve(
-        this.refreshTokenRepository.find((token) => token.id === decode.id),
-      );
+      return this.refreshTokenRepository.findOneBy({ id: decode.id });
     } catch (e) {
       return undefined;
     }
+  }
+  async logout(refreshStr): Promise<void> {
+    const refreshToken = await this.retriveRefreshToken(refreshStr);
+
+    if (!refreshToken) {
+      return;
+    }
+    this.refreshTokenRepository.delete({ id: refreshToken.id });
   }
 }
