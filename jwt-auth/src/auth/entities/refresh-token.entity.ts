@@ -3,6 +3,9 @@ import { sign } from 'jsonwebtoken';
 
 @Entity()
 export class RefreshToken {
+  constructor(init?: Partial<RefreshToken>) {
+    Object.assign(this, init);
+  }
   @PrimaryGeneratedColumn({
     type: 'bigint',
     name: 'user_id',
