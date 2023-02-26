@@ -20,7 +20,14 @@ export class UsersService {
     if (!user) {
       throw new BadRequestException('User not found!');
     }
-    return;
+    return user;
+  }
+  async findUser(userName: string) {
+    const user = await this.userRepository.findOneBy({ username: userName });
+    if (!user) {
+      throw new BadRequestException('User not found!');
+    }
+    return user;
   }
   getUsers() {
     return this.userRepository.find();
