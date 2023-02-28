@@ -5,6 +5,7 @@ import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 import { RefreshToken } from './entities/refresh-token.entity';
+import { compare } from '@node-rs/bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -20,8 +21,8 @@ export class AuthService {
     values: { userAgent: string; ipAddress: string },
   ): Promise<{ accessToken: string; refreshToken: string } | undefined> {
     const user = await this.userService.findUser(userName);
-    //TODO to add hash
-    if (user.password !== password) {
+
+    if (!compare(user.password, password)) {
       throw new BadRequestException('User not found!');
     }
     return this.newRefreshAndAccessToken(user, values);
