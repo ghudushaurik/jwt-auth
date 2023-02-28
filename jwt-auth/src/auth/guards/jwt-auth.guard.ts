@@ -15,6 +15,8 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     context: ExecutionContext,
     status: any,
   ) {
+    console.log(user);
+
     if (info instanceof JsonWebTokenError) {
       throw new UnauthorizedException('Invalid JWT');
     }
